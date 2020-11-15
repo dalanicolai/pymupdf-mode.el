@@ -22,7 +22,7 @@ naturally, the annotations are editable with pdf-tools which is *awesome!*
    [[https://github.com/dalanicolai/djvu2.el][djvu2]] (Experimental)
 
 * Installation
-  First install pymupdf by typing `pip3 install pymupdf` in a terminal. Although
+  First install pymupdf by typing ~pip3 install pymupdf~ in a terminal. Although
   you could just clone this repository and load the script =pymupdf-mode.el=, it
   is recommended to install this package with a quelpa recipe (although this
   will overwrite any customizations on any package update).
@@ -56,6 +56,9 @@ naturally, the annotations are editable with pdf-tools which is *awesome!*
   script is just elementary, it should be very straightforward for users to
   customize the functionality using the [[https://pymupdf.readthedocs.io/en/latest/faq.html#annotations][pymupdf annotation documentation]].
 
+  Also the line annotation colors are customizable via `M-x customize-group RET
+  pymupdf-annot`
+
   After adding any annotation, the file is saved automatically so that pdf-tools
   will reload the file automatically and show the annotation. Then pdf-tools can
   be used to edit the annotation. However, because editing annotations with
@@ -69,3 +72,5 @@ naturally, the annotations are editable with pdf-tools which is *awesome!*
    | =C-S-mouse-1=      | pymupdf-draw-caret     |
    | =C-S-drag-mouse-1= | pymupdf-draw-arrow     |
    | =C-S-drag-mouse-3= | pymupdf-draw-free-text |
+*** Spacemacs (pdf-view-mode)
+   | =, t c= | toggle pymupdf-mode |

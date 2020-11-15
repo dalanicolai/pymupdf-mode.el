@@ -31,6 +31,37 @@
 (eval-when-compile
   (require 'pdf-view))
 
+(defgroup pymupdf-annot nil
+  "Annotation support via pymupdf for PDF documents."
+  :group 'pdf-tools)
+
+(defcustom line-stroke-annot-color-name "blue"
+  "Color for line annotation"
+  :tag "Line annotation stroke color"
+  :type 'color
+  :set #'(lambda (sym val)
+           (setq line-stroke-annot-color-rgb (string-join
+                                            (mapcar #'number-to-string
+                                                    (color-name-to-rgb val))
+                                            ","))
+           (set-default sym val)))
+
+(defcustom line-fill-annot-color-name "red"
+  "Color for line annotation"
+  :tag "Line annotation fill color"
+  :type 'color
+  :set #'(lambda (sym val)
+           (setq line-fill-annot-color-rgb (string-join
+                                            (mapcar #'number-to-string
+                                                    (color-name-to-rgb val))
+                                            ","))
+           (set-default sym val)))
+
+(defun pymupdf-color-convert-to-rgb (color-name)
+  "Converts color name to rgb-string
+Returns string with comma separated rgb-values e.g. '1.0, 1.0, 1.0'."
+  (string-join (mapcar #'number-to-string (color-name-to-rgb color-name)) ","))
+
 (defun pymupdf-show-buffer-modified-message ()
   (message "This buffer has been modified.
 Please use `M-x pymupdf-restart' to save buffer and continue editing using pymupdf."))
@@ -57,7 +88,10 @@ Please use `M-x pymupdf-restart' to save buffer and continue editing using pymup
                                     (car end)
                                     (cdr end)))
         (comint-simple-send (current-buffer) "annot = page.addLineAnnot(start, end)")
-        (comint-simple-send (current-buffer) "blue = (0, 0, 1)\ngreen = (0, 1, 0)\nannot.setColors(stroke=blue, fill=green)")
+        (comint-simple-send (current-buffer)  (format
+                                               "annot.setColors(stroke=(%s), fill=(%s))"
+                                               (pymupdf-color-convert-to-rgb "blue")
+                                               line-fill-annot-color-rgb))
         (comint-simple-send (current-buffer) "annot.setLineEnds(0,5)")
         (comint-simple-send (current-buffer) "annot.update()")
         (comint-simple-send
@@ -165,6 +199,9 @@ process buffer for a list of commands.)"
   (interactive)
   (pymupdf-mode 0)
   (pymupdf-mode 1))
+
+(spacemacs/declare-prefix-for-mode 'pdf-view-mode "mt" "toggles")
+(spacemacs/set-leader-keys-for-major-mode 'pdf-view-mode "tp" 'pymupdf-mode)
 
 ;;;###autoload
 (define-minor-mode pymupdf-mode
