@@ -200,8 +200,8 @@ process buffer for a list of commands.)"
   (pymupdf-mode 0)
   (pymupdf-mode 1))
 
-(spacemacs/declare-prefix-for-mode 'pdf-view-mode "mt" "toggles")
-(spacemacs/set-leader-keys-for-major-mode 'pdf-view-mode "tp" 'pymupdf-mode)
+(when (fboundp 'spacemacs/declare-prefix-for-mode) (spacemacs/declare-prefix-for-mode 'pdf-view-mode "mt" "toggles"))
+(when (fboundp 'spacemacs/set-leader-keys-for-major-mode) (spacemacs/set-leader-keys-for-major-mode 'pdf-view-mode "tp" 'pymupdf-mode))
 
 ;;;###autoload
 (define-minor-mode pymupdf-mode
