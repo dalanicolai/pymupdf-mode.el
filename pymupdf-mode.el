@@ -12,7 +12,6 @@
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,6 +29,15 @@
 (require 'python)
 (eval-when-compile
   (require 'pdf-view))
+
+(defcustom pymupdf-meta-shell-interpreter python-shell-interpreter
+  "Python interpreter used for running meta2csv and csv2meta scripts."
+  :type 'string)
+
+(defcustom pymupdf-utilities-examples/directory "~/git/PyMuPDF-Utilities/examples"
+  "PyMuPDF-utilities examples directory.
+See URL `https://github.com/dalanicolai/PyMuPDF-Utilities'."
+  :type 'directory)
 
 (defun pymupdf-draw-arrow (event)
   (interactive "e")
@@ -112,6 +120,32 @@
        (current-buffer)
        (format "doc.save('%s', incremental=True, encryption=fitz.PDF_ENCRYPT_KEEP)" file-path)))))
 
+;;;###autoload
+(defun pymupdf-edit-metadata ()
+  (interactive)
+  (let ((file-path (buffer-file-name)))
+    (print (shell-command-to-string (format "%s %s/meta2csv.py '%s'"
+                                      python-shell-interpreter
+                                      (expand-file-name pymupdf-utilities-examples/directory)
+                                      file-path)))
+    (find-file (concat
+                (file-name-sans-extension (file-name-nondirectory file-path))
+                "-meta.csv"))
+    (when (fboundp 'csv-mode)
+        (csv-mode))
+    (setq-local assoc-file file-path)
+    (pymupdf-meta-mode)))
+
+(defun pymupdf-write-metadata ()
+  (interactive)
+  (save-buffer)
+  (shell-command (format "%s %s/csv2meta.py -csv '%s' -pdf '%s'"
+                         pymupdf-meta-shell-interpreter
+                         (expand-file-name pymupdf-utilities-examples/directory)
+                         (buffer-file-name)
+                         assoc-file))
+  (kill-buffer))
+
 (defun pymupdf-kill-comint-buffer ()
   (let (comint-buffer (python-shell-get-buffer))
     (when comint-buffer
@@ -149,6 +183,9 @@ process buffer for a list of commands.)"
           (or cmd (python-shell-calculate-command))
           (python-shell-get-process-name dedicated) show)))
     (get-buffer-process buffer)))
+
+(define-minor-mode pymupdf-meta-mode nil nil "PyMuPDF-meta"
+  `((,(kbd "C-c C-c") . pymupdf-write-metadata)))
 
 ;;;###autoload
 (define-minor-mode pymupdf-mode
