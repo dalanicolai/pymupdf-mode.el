@@ -12,7 +12,6 @@
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -65,6 +64,15 @@ Returns string with comma separated rgb-values e.g. '1.0, 1.0, 1.0'."
 (defun pymupdf-show-buffer-modified-message ()
   (message "This buffer has been modified.
 Please use `M-x pymupdf-restart' to save buffer and continue editing using pymupdf."))
+
+(defcustom pymupdf-meta-shell-interpreter python-shell-interpreter
+  "Python interpreter used for running meta2csv and csv2meta scripts."
+  :type 'string)
+
+(defcustom pymupdf-utilities-examples/directory "~/git/PyMuPDF-Utilities/examples"
+  "PyMuPDF-utilities examples directory.
+See URL `https://github.com/dalanicolai/PyMuPDF-Utilities'."
+  :type 'directory)
 
 (defun pymupdf-draw-arrow (event)
   (interactive "e")
@@ -156,6 +164,39 @@ Please use `M-x pymupdf-restart' to save buffer and continue editing using pymup
          (current-buffer)
          (format "doc.save('%s', incremental=True, encryption=fitz.PDF_ENCRYPT_KEEP)" file-path))))))
 
+;;;###autoload
+(defun pymupdf-edit-metadata ()
+  (interactive)
+  (let ((file-path (buffer-file-name)))
+    (print (shell-command-to-string (format "%s %s/meta2csv.py '%s'"
+                                      python-shell-interpreter
+                                      (expand-file-name pymupdf-utilities-examples/directory)
+                                      file-path)))
+    (find-file (concat
+                (file-name-sans-extension (file-name-nondirectory file-path))
+                "-meta.csv"))
+    (goto-char (point-min))
+    (while (not (eobp))
+      (search-forward ";" nil nil 1)
+      (when (search-forward ";" (point-at-eol) t)
+        (replace-match ","))
+      (forward-line))
+    (goto-char (point-min))
+    (when (fboundp 'csv-mode)
+        (csv-mode))
+    (setq-local assoc-file file-path)
+    (pymupdf-meta-mode)))
+
+(defun pymupdf-write-metadata ()
+  (interactive)
+  (save-buffer)
+  (shell-command (format "%s %s/csv2meta.py -csv '%s' -pdf '%s'"
+                         pymupdf-meta-shell-interpreter
+                         (expand-file-name pymupdf-utilities-examples/directory)
+                         (buffer-file-name)
+                         assoc-file))
+  (kill-buffer))
+
 (defun pymupdf-kill-comint-buffer ()
   (let ((comint-buffer (python-shell-get-buffer)))
     (when comint-buffer
@@ -203,6 +244,9 @@ process buffer for a list of commands.)"
 (spacemacs/declare-prefix-for-mode 'pdf-view-mode "mt" "toggles")
 (spacemacs/set-leader-keys-for-major-mode 'pdf-view-mode "tp" 'pymupdf-mode)
 
+(define-minor-mode pymupdf-meta-mode nil nil "PyMuPDF-meta"
+  `((,(kbd "C-c C-c") . pymupdf-write-metadata)))
+
 ;;;###autoload
 (define-minor-mode pymupdf-mode
   "PDF annotation extension using pymupdf."
@@ -214,16 +258,16 @@ process buffer for a list of commands.)"
   (if (pdf-tools-pdf-buffer-p)
     (if pymupdf-mode
         (let ((file-path buffer-file-name))
-        (when (buffer-modified-p)
-          (save-buffer)
-          (pdf-view-revert-buffer nil t))
-        (run-python (python-shell-calculate-command) t nil)
-        (set-buffer (get-file-buffer file-path))
-        (with-current-buffer (python-shell-get-buffer)
-          (comint-simple-send (current-buffer)
-                              (concat "import fitz\n\
+          (when (buffer-modified-p)
+            (save-buffer)
+            (pdf-view-revert-buffer nil t))
+          (run-python (python-shell-calculate-command) t nil)
+          (set-buffer (get-file-buffer file-path))
+          (with-current-buffer (python-shell-get-buffer)
+            (comint-simple-send (current-buffer)
+                                (concat "import fitz\n\
 doc=fitz.open('" file-path "')")))
-        (add-hook 'kill-buffer-hook 'pymupdf-kill-comint-buffer nil t))
+          (add-hook 'kill-buffer-hook 'pymupdf-kill-comint-buffer nil t))
       (remove-hook 'kill-buffer-hook 'pymupdf-kill-comint-buffer t)
       (pymupdf-kill-comint-buffer))
     (message "buffer not associated with a PDF file")))

@@ -9,6 +9,8 @@ especially its [[https://pymupdf.readthedocs.io/en/latest/faq.html#annotations][
 naturally, the annotations are editable with pdf-tools which is *awesome!*
 [[./pymupdf-mode-demo.gif]]
 
+Additionally, pymupdf contains functionality to quickly edit the pdf metadata (see [[Usage]])
+
 ** Comment
   The script has been tested on GNU/linux only, but it should work on any platform where
   python is installed.
@@ -26,6 +28,14 @@ naturally, the annotations are editable with pdf-tools which is *awesome!*
   you could just clone this repository and load the script =pymupdf-mode.el=, it
   is recommended to install this package with a quelpa recipe (although this
   will overwrite any customizations on any package update).
+
+  For editing metadata, clone [[https://github.com/dalanicolai/PyMuPDF-Utilities][this PyMuPDF-Utilities repo]], and customize the
+  =pymupdf-utilities-examples/directory=. Writing the metadata might not work
+  well when you use the ipython interpreter, in that case set the
+  =pymupdf-meta-shell-interpreter= to your =python3= interpreter command.
+  
+  Activate the mode from within a pdf-tools buffer using =M-x pymupdf-mode= or
+  use a hook (see Spacemacs subsection below)
 
 ** Spacemacs
     Spacemacs users can install the package by adding the following lines to the
@@ -65,6 +75,10 @@ naturally, the annotations are editable with pdf-tools which is *awesome!*
   pdf-tools modifies the buffer (instead of the file), adding more annotations
   is prevented until pymupdf mode is restarted. Simply use =M-x pymupdf-restart=
   to continue annotating with pymupdf.
+
+  For editing metadata, simply from a pdf document's buffer, eval =M-x
+  pymupdf-edit-metadata=. Edit the metadata in the buffer and press =C-c C-c= to
+  attach it to the pdf document.
   
 ** Keybindings
    mouse-1 is left button
