@@ -15,21 +15,17 @@ naturally, the annotations are editable with pdf-tools which is *awesome!*
 
   The script is just a hack and things can act a little weird if not used in the
   correct way, especially when mixing pymupdf annotations with pdf-tools
-  annotation functionality (although not much can go wrong). I do not yet
-  understand exactly how pdf-tools handles things.
+  annotation functionality (although not much can go wrong). 
 
 ** Related
    [[https://github.com/dalanicolai/pdf-continuous-scroll-mode.el][pdf-continuous-scroll-mode]] (HACK) \\
    [[https://github.com/dalanicolai/djvu2.el][djvu2]] (Experimental)
 
 * Installation
-  First install pymupdf by typing `pip3 install pymupdf` in a terminal. Although
+  First install pymupdf by typing ~pip3 install pymupdf~ in a terminal. Although
   you could just clone this repository and load the script =pymupdf-mode.el=, it
   is recommended to install this package with a quelpa recipe (although this
   will overwrite any customizations on any package update).
-
-  Activate the mode from within a pdf-tools buffer using =M-x pymupdf-mode= or
-  use a hook (see Spacemacs subsection below)
 
 ** Spacemacs
     Spacemacs users can install the package by adding the following lines to the
@@ -46,26 +42,35 @@ naturally, the annotations are editable with pdf-tools which is *awesome!*
      (with-eval-after-load 'pdf-view
        (require 'pymupdf-mode))
    #+end_src
-   To activate the mode automatically when opening a pdf document in pdf-tools
-   also add the following line to the user-config section of you dotfile:
+ 
+* Usage
+   Load the mode manually from within a pdf-tools buffer using =M-x
+   pymupdf-mode=.
+   Or to activate the mode automatically when opening a pdf document in pdf-tools
+   add the following line to your dotfile:
    #+begin_src elisp
      (add-hook 'pdf-view-mode-hook 'pymupdf-mode)
    #+end_src
-   Otherwise load the mode manually from within a pdf-tools buffer using =M-x
-   pymupdf-mode=.
- 
-* Usage
+  
   Use the keybindings given below to create their respective annotation. The
   script is just elementary, it should be very straightforward for users to
   customize the functionality using the [[https://pymupdf.readthedocs.io/en/latest/faq.html#annotations][pymupdf annotation documentation]].
 
+  Also the line annotation colors are customizable via `M-x customize-group RET
+  pymupdf-annot`
+
   After adding any annotation, the file is saved automatically so that pdf-tools
   will reload the file automatically and show the annotation. Then pdf-tools can
-  be used to edit the annotation.
-
+  be used to edit the annotation. However, because editing annotations with
+  pdf-tools modifies the buffer (instead of the file), adding more annotations
+  is prevented until pymupdf mode is restarted. Simply use =M-x pymupdf-restart=
+  to continue annotating with pymupdf.
+  
 ** Keybindings
    mouse-1 is left button
    mouse-3 is right button
    | =C-S-mouse-1=      | pymupdf-draw-caret     |
    | =C-S-drag-mouse-1= | pymupdf-draw-arrow     |
    | =C-S-drag-mouse-3= | pymupdf-draw-free-text |
+*** Spacemacs (pdf-view-mode)
+   | =, t c= | toggle pymupdf-mode |
