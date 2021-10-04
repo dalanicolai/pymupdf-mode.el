@@ -241,8 +241,9 @@ process buffer for a list of commands.)"
   (pymupdf-mode 0)
   (pymupdf-mode 1))
 
-(spacemacs/declare-prefix-for-mode 'pdf-view-mode "mt" "toggles")
-(spacemacs/set-leader-keys-for-major-mode 'pdf-view-mode "tp" 'pymupdf-mode)
+(when (boundp 'spacemacs-version)
+  (spacemacs/declare-prefix-for-mode 'pdf-view-mode "mt" "toggles")
+  (spacemacs/set-leader-keys-for-major-mode 'pdf-view-mode "tp" 'pymupdf-mode))
 
 (define-minor-mode pymupdf-meta-mode nil nil "PyMuPDF-meta"
   `((,(kbd "C-c C-c") . pymupdf-write-metadata)))
