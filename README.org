@@ -1,3 +1,11 @@
+* BETTER ALTERNATIVE: VIMURA SERVER
+A better alternative to this mode is to use the [[https://pypi.org/project/vimura-server/][vimura server]]. To use the server
+with pdf-tools, install the [[https://github.com/dalanicolai/pdf-tools/tree/production][production branch of my pdf-tools fork]]. After you
+have installed the vimura server and the =production= branch of the pdf-tools
+fork, a command =pdf-tools-toggle-server= should be available. Use this command to
+switch to the =vimura= server. When using the vimura server you can add
+annotations using =C-M mouse-drag-1= (Ctrl-Alt left-button drag).
+
 * pymupdf-mode.el
 Extend pdf-tools annotation capabilities via [[https://pymupdf.readthedocs.io/en/latest/][pymupdf]]
 
